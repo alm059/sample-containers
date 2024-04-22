@@ -1,13 +1,14 @@
+This sample project consists of the following services deployed in individual containers through docker-compose:
 
-This sample project consists of the following services:
 
-· Mongo DB
-· Redis Cache
+· A load tester through cronjobs
 · NGINX ingress
 · Grafana
-· Cronjobs
-· Docker (docker-compose)
+· Gunicorn (Flask)
+· Redis Cache
+· Mongo DB
+
 
 It's purpose is an API serviced with an NGINX ingress that communicates with mongo DB and a redis cache. This NGINX ingress shows access logs in grafana. Separately, a cronjob runs every 5 minutes a load test against the NGINX ingress. All these services are deployed in separate containers in a docker environment set up through docker-compose.
 
-Implement an API that talks to a mongo DB and has a redis cache, which is serviced with a nginx ingress that shows access logs in grafana, have a cronjob that runs every 5 minutes a 5 minute load test against the nginx ingress.
+Implement an API (Gunicorn + Flask) that talks to a mongo DB and has a redis cache, which is serviced with a nginx ingress that shows access logs in grafana, have a cronjob that runs every 5 minutes a 5 minute load test against the nginx ingress.

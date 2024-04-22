@@ -1,0 +1,63 @@
+version: "3.8"
+services:
+    mongodb:
+        container_name: mongodb
+        #image: "mongo:7.0.9-rc0"
+        build: ./mongo
+        restart: always
+        ports:
+            - 27017:27017
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: ${MONGODB_USERNAME}
+            MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_PASSWORD}
+            MONGO_INITDB_ROOT_DB: ${MONGODB_DATABASE}
+        volumes:
+        - 'mongo-data:/data/db'
+        - 'mongo-config:/data/configdb'
+
+    mongo-express:
+        container_name: mongo-express
+        image: mongo-express
+        profiles:
+            - express
+        depends_on:
+            - mongodb
+        restart: always
+        ports:
+            - 8081:8081
+        environment:
+            ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGODB_USERNAME}
+            ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGODB_PASSWORD}
+            ME_CONFIG_MONGODB_URL: mongodb://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@${MONGODB_HOSTNAME}:27017/
+            ME_CONFIG_BASICAUTH: false
+        
+
+    gunicorn:
+        container_name: gunicorn
+        image: gunicorn
+        build: ./gunicorn
+        profiles: [dev]
+
+
+    
+    # redis:
+
+    # nginx:
+    # grafana:
+    # stresser:
+
+
+volumes:
+    mongo-data:
+        driver: local
+    mongo-config:
+        driver: local
+
+
+# https://github.com/idealo/mongodb-performance-test
+# https://github.com/Ollebolle/docker-mongodb-redis-nginx-nodejs/tree/master/backend
+
+
+# https://www.youtube.com/watch?v=9t9Mp0BGnyI
+
+
