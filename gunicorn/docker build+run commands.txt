@@ -1,7 +1,0 @@
-Build and run environment with:
-
-docker build -t gunicorn:latest .
-docker run -d --env-file ../.env --name gunicorn --rm -v C:\Users\Alejandro\VisualStudio\sample-containers\gunicorn\app:/app -p 8080:8080 gunicorn:latest
-
-attach vscode to container
-

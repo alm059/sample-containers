@@ -37,6 +37,12 @@ services:
         image: gunicorn
         build: ./gunicorn
         profiles: [dev]
+        volumes:
+            - './gunicorn/app:/app'
+        ports:
+            - 8080:8080
+        env_file:
+            - .env
 
 
     
@@ -52,6 +58,12 @@ volumes:
         driver: local
     mongo-config:
         driver: local
+#    gunicorn-dev:
+#        driver: local
+#        driver_opts:
+#            type: none
+
+            #o: bind
 
 
 # https://github.com/idealo/mongodb-performance-test
