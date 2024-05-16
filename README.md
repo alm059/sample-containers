@@ -14,3 +14,5 @@ It's purpose is to demonstrate the deployment of an API serviced with an NGINX i
 The project will be oriented to keeping book details.
 
 Implement an API (Gunicorn + Flask) that talks to a mongo DB and has a redis cache, which is serviced with a nginx ingress that shows access logs in grafana, and has a cronjob that runs every 5 minutes a 5 minute load test against the nginx ingress.
+
+SocketIO?
