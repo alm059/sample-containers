@@ -5,61 +5,56 @@ import os
 application = Flask(__name__)
 
 application.config["MONGO_URI"] = 'mongodb://' + os.environ['MONGODB_USERNAME'] + ':' + os.environ['MONGODB_PASSWORD'] + '@' + os.environ['MONGODB_HOSTNAME'] + ':27017/' + os.environ['MONGODB_DATABASE']
-db = PyMongo(application).db
+books_db = PyMongo(application).db
 
-#my_db.db.create_collection("test")
-#my_db.db.test.insert_one({ "test": "test" })
+if "books" not in books_db.list_collection_names():
+    books_db.create_collection("books")
 
-item_1 = {
-    "_id" : "U1IT00001",
-    "item_name" : "Blender",
-    "max_discount" : "10%",
-    "batch_number" : "RR450020FRG",
-    "price" : 340,
-    "category" : "kitchen appliance"
+books = books_db.books
+
+required_fields = {"title", "author", "published_year","genre", "do_i_have_it"}
+
+book_1 = {
+    "title": "",
+    "author": "",
+    "published_year": "",
+    "genre": "",
+    "do_i_have_it": ""
 }
 
-item_2 = {
-    "_id" : "U1IT00002",
-    "item_name" : "Egg",
-    "category" : "food",
-    "quantity" : 12,
-    "price" : 36,
-    "item_description" : "brown country eggs"
-}
+@application.route('/', methods=['GET']))
+def index():
+    return jsonify(status=True, message="""
+        /createBook 
+        /getBooks
+        /getBook
+        /updateBook
+        /deleteBook
+    """), 201
 
-@application.route('/')
-def adfsdf():
-    return "test"
+@application.route('/createBook', methods=['POST'])
+def createBook():
+    if not required_fields.issubset(set(request.form.keys())):
+        return "error"
+    
+    return " ".join([element for element in request.form.keys()])
 
-@application.route('/queryCollection', methods=['POST'])
-def queryCollection():
-    pass
+@application.route('/getBooks', methods=['GET'])
+def getBooksList():
+    return books.find("")
 
-
-@application.route('/getDocument')
-def getDocument():
+@application.route('/getBook', methods=['GET']))
+def getBookInfo():
     return jsonify(
         status=True,
         message='Welcome to the Dockerized Flask MongoDB app!'
     )
 
-@application.route('/deleteCollection')
-def deleteCollection():
+@application.route('/updateBook', methods=['POST', 'PUT', 'PATCH'])
+def updateBook():
     pass
 
 
-
-
-@application.route('/createDocument', methods=['POST'])
-def createTodo():
-    data = request.get_json(force=True)
-    item = {
-        'todo': data['todo']
-    }
-    db.todo.insert_one(item)
-
-    return jsonify(
-        status=True,
-        message='To-do saved successfully!'
-    ), 201
+@application.route('/deleteBook', methods=['POST', 'DELETE'])
+def deleteBook():
+    pass
