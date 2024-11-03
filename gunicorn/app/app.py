@@ -5,56 +5,93 @@ import os
 application = Flask(__name__)
 
 application.config["MONGO_URI"] = 'mongodb://' + os.environ['MONGODB_USERNAME'] + ':' + os.environ['MONGODB_PASSWORD'] + '@' + os.environ['MONGODB_HOSTNAME'] + ':27017/' + os.environ['MONGODB_DATABASE']
-books_db = PyMongo(application).db
+chat_db = PyMongo(application).db
 
-if "books" not in books_db.list_collection_names():
-    books_db.create_collection("books")
+if "users" not in chat_db.list_collection_names():
+    chat_db.create_collection("users")
 
-books = books_db.books
+if "conversations" not in chat_db.list_collection_names():
+    chat_db.create_collection("conversations")
 
-required_fields = {"title", "author", "published_year","genre", "do_i_have_it"}
+users = chat_db.users
+conversations =  chat_db.conversations
 
-book_1 = {
-    "title": "",
-    "author": "",
-    "published_year": "",
-    "genre": "",
-    "do_i_have_it": ""
-}
 
-@application.route('/', methods=['GET']))
+@application.route('/', methods=['GET'])
 def index():
     return jsonify(status=True, message="""
-        /createBook 
-        /getBooks
-        /getBook
-        /updateBook
-        /deleteBook
+        /createUser: create a new user document
+        /authUser: verify if a user exists
+        /getConversations: get conversations a user has created
+        /getContactList: get options to create conversations with 
+        /getMessages: get all (or newer) messages of a conversation (find_one_or_404)
+        /sendMessage: send a message to a conversation
+        /patchMessage: edit or delete message
     """), 201
 
-@application.route('/createBook', methods=['POST'])
-def createBook():
-    if not required_fields.issubset(set(request.form.keys())):
-        return "error"
+@application.route('/createUser', methods=['POST'])
+def createUser():
+    create_user_required_fields = {"username"}
+    if not create_user_required_fields.issubset(set(request.form.keys())):
+        return jsonify(
+        status=400,
+        message="Username field required")
     
-    return " ".join([element for element in request.form.keys()])
+    if users.find_one({"username": request.form.get("username")}) != None:
+        return jsonify(
+        status=400,
+        message="User already exists")
 
-@application.route('/getBooks', methods=['GET'])
-def getBooksList():
+    return jsonify(
+        status=201,
+        response=str(users.insert_one(request.form.to_dict())),
+        message="User has been created")
+
+@application.route('/authUser', methods=['POST'])
+def authUser():
+    user = users.find_one({"username": request.form.get("username")})
+    if user != None:
+        return jsonify(
+        status=201,
+        response=str(user),
+        message="User exists")
+    else:
+        return jsonify(
+        status=400,
+        message="Could not find user")
+
+@application.route('/getContactList', methods=['GET'])
+def getContactList():
+    user_list = users.find()
+    list_in_string = "[" + ", ".join([str(element) for element in users.find()]) + "]"
+    return jsonify(
+        status=201,
+        response=list_in_string,
+        message="Retrieving user list")
+
+@application.route('/getConversations', methods=['GET'])
+def getConversations():
+    if request.args["username"] == None:
+        return jsonify(
+        status=400,
+        message="A username is needed to get their conversations")
+
+    user_query = {"participants": request.args["username"]}
+
+    conversations.find()
     return books.find("")
 
-@application.route('/getBook', methods=['GET']))
-def getBookInfo():
-    return jsonify(
-        status=True,
-        message='Welcome to the Dockerized Flask MongoDB app!'
-    )
 
-@application.route('/updateBook', methods=['POST', 'PUT', 'PATCH'])
-def updateBook():
+
+@application.route('/getMessages', methods=['POST', 'PUT', 'PATCH'])
+def getMessages():
     pass
 
 
-@application.route('/deleteBook', methods=['POST', 'DELETE'])
-def deleteBook():
+@application.route('/sendMessage', methods=['POST', 'DELETE'])
+def sendMessage():
+    pass
+
+@application.route('/patchMessage', methods=['POST', 'DELETE'])
+def patchMessage():
     pass
